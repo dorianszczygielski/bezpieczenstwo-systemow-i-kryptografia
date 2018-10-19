@@ -38,6 +38,6 @@ int main()
                 << setw(5) << dec << total[i] << " times"
                 << "  " << endl;
     }
-    cout << "Counting ready." << endl;
+    cout << "Counting ready..." << endl;
     return 0;
 }
