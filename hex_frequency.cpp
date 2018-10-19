@@ -38,5 +38,6 @@ int main()
                 << setw(5) << dec << total[i] << " times"
                 << "  " << endl;
     }
+    printf("Counting ready.")
     return 0;
 }
