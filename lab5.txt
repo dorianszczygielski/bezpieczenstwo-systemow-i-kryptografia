@@ -1,0 +1,37 @@
+#1. Wygenerowanie prywatnego klucza RSA o dlugosci 8196 do pliku d.szczygielski_private_key_rsa.pem
+
+openssl genrsa -out d.szczygielski_private_key_rsa.pem 8196
+
+#2. Generowanie klucza pubczlinego RSA z klucza prywatnego
+
+openssl rsa -pubout -in d.szczygielski_private_key_rsa.pem -out d.szczygielski_public_key_rsa.pem
+
+#W wyniku polecenia openssl zapisal klucz publiczny w pliku d.szczygielski_public_key_rsa.pem
+
+#3. Format plikow, zmiana z formatu *.pem na format *.der oraz porowananie zawartosci plikow przy obu formatach.
+
+openssl rsa -inform PEM -outform DER -in d.szczygielski_private_key_rsa.pem -out d.szczygielski_private_key_rsa.der
+openssl rsa -pubin -inform PEM -in d.szczygielski_public_key_rsa.pem -outform DER -out d.szczygielski_public_key_rsa.der
+
+#Formaty plikow zostaly zmienione na *.der, zawartosc plikow stanowczo rozni sie od siebie, plik w formacie *.der wyglada jak zapis base64
+
+#4. Szyfrowanie prywatnego klucza uzywajac algorytmu ds3
+
+openssl rsa -des3 -in d.szczygielski_private_key_rsa.pem -out d.szczygielski_private_key_rsa.enc.pem
+
+#Zostal wygenerowany plik zaszyfrowany za pomoca des3 wykorzystujac haslo: snowden
+
+#5. Szyfrowanie tekstu kluczem publicznym
+
+openssl rsautl -encrypt -pubin -inkey d.szczygielski_public_key_rsa.pem -in d.szczygielski_text.msg -out d.szczygielski_text.enc.msg
+
+#Plik zostal zaszyfrowany
+
+#6. Odszyfrowanie wiadomosc
+
+openssl rsautl -decrypt -inkey d.szczygielski_private_key_rsa.pem -in d.szczygielski_text.enc.msg -out d.szczygielski_text.dec.msg
+
+#7. Podpisanie pliku tekstowego
+
+openssl rsautl -sign -inkey d.szczygielski_private_key_rsa.pem -keyform PEM -in d.szczygielski_text2.msg -out d.szczygielski_text2.sig.msg
+openssl rsautl -verify -inkey d.szczygielski_private_key_rsa.pem -in d.szczygielski_text2.sig.msg
