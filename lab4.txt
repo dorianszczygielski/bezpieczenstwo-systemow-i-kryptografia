@@ -1,0 +1,35 @@
+#udostępniany odbiorcom plik to message.msg
+#zaszyfrowany plik to message.enc.msg
+#klucz wymieniony z użytkownikiem A to : "ABCD"
+#klucz wymieniony z użytkownikiem B to: "EFGH"
+
+#SZYFROWANIE PRZEZ NADAWCĘ
+#szyfrujemy plik message.msg kluczem sesyjnym qwerty zapisanym w ks.txt
+
+openssl enc -aes-192-cbc -pass file:ks.txt -in message.msg -out message.enc.msg
+
+#szyfrujemy plik sesyjny dla odbiorcy A kluczem "ABCD"
+
+openssl enc -aes-192-cbc -k "ABCD" -in ks.txt -out ksA.txt
+
+#szyfrujemy plik sesyjny dla odbiorcy B kluczem "EFGH"
+
+openssl enc -aes-192-cbc -k "EFGH" -in ks.txt -out ksB.txt
+
+#ODSZYFROWYWANIE PRZEZ ODBIORCĘ A
+
+openssl enc -d -aes-192-cbc -in ksA.txt -out ks4A.txt
+
+#podajemy z klawiatury wymieniony z nadawcą klucz "ABCD"
+
+#odszyfrowujemy message.enc.msg kluczem sesyjnym "qwerty"
+
+openssl enc -d -aes-192-cbc -pass file:ks4A.txt -in message.enc.msg -out message.msg
+
+#ODSZYFROWYWANIE PRZEZ ODBIORCĘ B
+
+openssl enc -d -aes-192-cbc -in ksB.txt -out ks4B.txt
+
+#podajemy z klawiatury wymieniony z nadawcą klucz "EFGH", odszyfrowujemy message.txt kluczem sesyjnym "qwerty"
+
+openssl enc -d -aes-192-cbc -pass file:ks4B.txt -in message.enc.msg -out message.msg
