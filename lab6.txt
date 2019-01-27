@@ -1,0 +1,60 @@
+#pkt.1:
+openssl genrsa -out m.burak.private.pem 4096
+
+#pkt.2:admin
+
+openssl req -new -sha256 -key m.burak.private.pem -out m.burak.certrequest.pem
+
+#pkt.4-6
+mkdir labCA
+cp /etc/pki/tls/openssl.cnf ./labCA/
+#edit openssl.cnf -> section CA:
+	[ CA_default ]
+	dir		= ./labCA		# Where everything is kept
+	certificate	= $dir/kzicacert.pem 	# The CA certificate
+	private_key	= $dir/private/kzicakey.pem# The private key
+
+#pkt.8
+# generate a self-signed certificate for the root CA
+  cd labCA
+  touch index.txt
+  echo 1000 > serial
+  mkdir private
+  mkdir newcerts
+  openssl req -new -x509 -keyout private/kzicakey.pem -out kzicacert.pem -newkey rsa:4096 -config openssl.cnf
+
+#pkt.9:
+ openssl x509 -in kzicacert.pem -outform DER -out kzicacert.der
+
+#pkt.10:
+#in the main lab directory
+ openssl ca -config labCA/openssl.cnf -out m.burak.signedcert.pem -in m.burak.certrequest.pem 
+
+
+#pkt.11:
+
+openssl rsa -in m.burak.privatekey.pem -out m.burak.server.pem
+cat m.burak.signedcert.pem >> m.burak.server.pem
+
+#Modyfikujemy /etc/hosts
+
+#Startujemy server (uzywajac localhost):
+openssl s_server -cert m.burak.server.pem -WWW -state
+
+#Otwieramy w przegladarce hhtps://maciejburak.com:4433/mgram.gif
+
+#Otwieramy port firewall:
+iptables -I INPUT -p tcp --dport 4433 -j ACCEPT
+
+#Import certyfikatu ca do fedory:
+yum install ca-certificates
+update-ca-trust force-enable
+cp kzicacert.pem /etc/pki/ca-trust/source/anchors/
+update-ca-trust extract
+
+pkt.13
+
+openssl pkcs12 -export -in m.burak.signedcert.pem -inkey m.burak.privatekey.pem -out m.burak.zut.p12
+
+
+ 
